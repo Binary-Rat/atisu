@@ -1,0 +1,28 @@
+{
+  "page": 1,
+  "items_per_page": 10,
+  "filter": {
+    "dates": {
+      "date_option": "today",
+    },
+    "from": {
+      "id": 2,
+      "type": 0,
+    },
+    "to": {
+      "id": 2,
+      "type": 0,
+    },
+    "weight": {
+      "min": 0.5,
+      "max": 0.5
+    },
+    "volume": {
+      "min": 0.5,
+      "max": 0.5
+    },
+    "truck_type": 0,
+    "loading_type": 0,
+    "sorting_type": 0, // 0 - by date, 1 - by weight
+  }
+}
