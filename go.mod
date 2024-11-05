@@ -1,4 +1,4 @@
-module github.com/Binary-Rat/atisuSDK
+module github.com/Binary-Rat/atisu
 
 go 1.23.1
 
