@@ -21,9 +21,14 @@ const (
 )
 
 type Client struct {
-	client *http.Client
-	token  string
-	isDemo bool
+	client     *http.Client
+	token      string
+	isDemo     bool
+	ReqHandler doRequst
+}
+
+type doRequst interface {
+	doHTTP(ctx context.Context, method string, endpoint string, body interface{}) ([]byte, error)
 }
 
 // NewClient returns a new Client instance.
@@ -46,14 +51,14 @@ func (c *Client) GetCarsWithFilter(page int, itemsPerPage int, filter Filter) ([
 		params["demo"] = "true"
 	}
 	enpoint := endpoint(searchByFilter, params)
-	body := requestCars{Page: page, Items_per_page: itemsPerPage, Filter: filter}
+	body := requestCars{Page: page, ItemsPerPage: itemsPerPage, Filter: filter}
 	return c.doHTTP(context.TODO(), http.MethodGet, enpoint, body)
 }
 
 // Get city id from api ati.su, can`t be cashed in your service to increase performance`
 func (c *Client) GetCityID(body []string) ([]City, error) {
 	var cities []City
-	resp, err := c.doHTTP(context.TODO(), http.MethodGet, GetCityID, body)
+	resp, err := c.doHTTP(context.TODO(), http.MethodGet, getCityID, body)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to get city id")
 	}
@@ -62,44 +67,8 @@ func (c *Client) GetCityID(body []string) ([]City, error) {
 	return cities, nil
 }
 
-type City struct {
-	City_id    int    `json:"city_id"`
-	Is_success bool   `json:"is_success"`
-	Street     string `json:"street"`
-}
-
-type requestCars struct {
-	Page           int    `json:"page"`
-	Items_per_page int    `json:"items_per_page"`
-	Filter         Filter `json:"filter"`
-}
-
 // Note that Filter recive the id of the city not the name
 // That why you need to use GetCityID before search by filter
-type Filter struct {
-	Dates struct {
-		Date_option string `json:"date_option"`
-	} `json:"dates"`
-	From struct {
-		ID   int `json:"id"`
-		Type int `json:"type"`
-	} `json:"from"`
-	To struct {
-		ID   int `json:"id"`
-		Type int `json:"type"`
-	} `json:"to"`
-	Weight struct {
-		Min float64
-		Max float64
-	} `json:"weight"`
-	Volume struct {
-		Min float64
-		Max float64
-	} `json:"volume"`
-	Truck_type   int `json:"truck_type"`
-	Loading_type int `json:"loading_type"`
-	Sorting_type int `json:"sorting_type"`
-}
 
 func endpoint(path string, params map[string]string) string {
 	u := url.URL{

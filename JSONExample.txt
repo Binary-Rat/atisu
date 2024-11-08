@@ -23,6 +23,6 @@
     },
     "truck_type": 0,
     "loading_type": 0,
-    "sorting_type": 0, // 0 - by date, 1 - by weight
+    "sorting_type": 0,
   }
 }
