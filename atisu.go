@@ -21,10 +21,13 @@ const (
 )
 
 type Client struct {
-	client     *http.Client
-	token      string
 	isDemo     bool
 	ReqHandler doRequst
+}
+
+type httpRequester struct {
+	client *http.Client
+	token  string
 }
 
 type doRequst interface {
@@ -39,9 +42,11 @@ func NewClient(token string, isDemo bool) (*Client, error) {
 		return nil, errors.New("token is empty")
 	}
 	return &Client{
-		client: &http.Client{},
-		token:  token,
 		isDemo: isDemo,
+		ReqHandler: &httpRequester{
+			client: &http.Client{},
+			token:  token,
+		},
 	}, nil
 }
 
@@ -52,13 +57,13 @@ func (c *Client) GetCarsWithFilter(page int, itemsPerPage int, filter Filter) ([
 	}
 	enpoint := endpoint(searchByFilter, params)
 	body := requestCars{Page: page, ItemsPerPage: itemsPerPage, Filter: filter}
-	return c.doHTTP(context.TODO(), http.MethodGet, enpoint, body)
+	return c.ReqHandler.doHTTP(context.TODO(), http.MethodGet, enpoint, body)
 }
 
 // Get city id from api ati.su, can`t be cashed in your service to increase performance`
 func (c *Client) GetCityID(body []string) ([]City, error) {
 	var cities []City
-	resp, err := c.doHTTP(context.TODO(), http.MethodGet, getCityID, body)
+	resp, err := c.ReqHandler.doHTTP(context.TODO(), http.MethodGet, getCityID, body)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to get city id")
 	}
@@ -89,7 +94,7 @@ func endpoint(path string, params map[string]string) string {
 
 // The function returns the response body and an error if something went wrong.
 // all api responses`s errors will be returned as error
-func (c *Client) doHTTP(ctx context.Context, method string, endpoint string, body interface{}) ([]byte, error) {
+func (r *httpRequester) doHTTP(ctx context.Context, method string, endpoint string, body interface{}) ([]byte, error) {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to marshal input body")
@@ -104,9 +109,9 @@ func (c *Client) doHTTP(ctx context.Context, method string, endpoint string, bod
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", r.token))
 
-	resp, err := c.client.Do(req)
+	resp, err := r.client.Do(req)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to send http request")
 	}
