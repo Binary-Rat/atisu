@@ -20,15 +20,15 @@ const (
 	xErrorHeader = "X-Error"
 )
 
+//go:generate mockgen -destination=./mocks/mock_atisu.go -package=mocks github.com/Binary-Rat/atisu HTTPClient
 type Client struct {
-	client     *http.Client
-	token      string
-	isDemo     bool
-	ReqHandler doRequst
+	isDemo bool
+	client HTTPClient
+	token  string
 }
 
-type doRequst interface {
-	doHTTP(ctx context.Context, method string, endpoint string, body interface{}) ([]byte, error)
+type HTTPClient interface {
+	Do(req *http.Request) (*http.Response, error)
 }
 
 // NewClient returns a new Client instance.
@@ -38,10 +38,11 @@ func NewClient(token string, isDemo bool) (*Client, error) {
 	if token == "" {
 		return nil, errors.New("token is empty")
 	}
+
 	return &Client{
-		client: &http.Client{},
-		token:  token,
 		isDemo: isDemo,
+		token:  token,
+		client: &http.Client{},
 	}, nil
 }
 
