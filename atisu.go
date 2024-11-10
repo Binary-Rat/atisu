@@ -56,9 +56,10 @@ func (c *Client) GetCarsWithFilter(page int, itemsPerPage int, filter Filter) ([
 	return c.doHTTP(context.TODO(), http.MethodGet, enpoint, body)
 }
 
-// Get city id from api ati.su, can`t be cashed in your service to increase performance`
-func (c *Client) GetCityID(body []string) ([]City, error) {
-	var cities []City
+// GetCityID gets the id of a city by it's name or it`s part`.
+// It returns a pointer to a Cities struct (map), which contains the id of the city.
+func (c *Client) GetCityID(body []string) (*Cities, error) {
+	var cities *Cities
 	resp, err := c.doHTTP(context.TODO(), http.MethodGet, getCityID, body)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to get city id")

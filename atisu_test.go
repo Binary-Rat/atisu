@@ -25,13 +25,34 @@ func Test_GetCarsWithFilter(t *testing.T) {
 	}
 	resp := &http.Response{
 		StatusCode: http.StatusOK,
-		Body:       io.NopCloser(bytes.NewBufferString(testBody)),
+		Body:       io.NopCloser(bytes.NewBufferString(testBodyCars)),
 	}
 	HTTPClient.EXPECT().Do(gomock.Any()).Return(resp, nil)
 	cars, err := cl.GetCarsWithFilter(1, 1, Filter{})
 	assert.NoError(t, err)
 	_ = cars // TODO
 
+}
+
+func Test_GetCityID(t *testing.T) {
+
+	ctrl := gomock.NewController(t)
+	HTTPClient := mock_atisu.NewMockHTTPClient(ctrl)
+
+	cl := &Client{
+		isDemo: false,
+		client: HTTPClient,
+		token:  "token",
+	}
+	resp := &http.Response{
+		StatusCode: http.StatusOK,
+		Body:       io.NopCloser(bytes.NewBuffer([]byte(testBodyCity))),
+	}
+	HTTPClient.EXPECT().Do(gomock.Any()).Return(resp, nil)
+	cities, err := cl.GetCityID([]string{"Москва"})
+	assert.NoError(t, err)
+	fmt.Println(cities)
+	assert.Equal(t, 3611, (*cities)["Москва"].CityID)
 }
 
 func Test_ParseJSON(t *testing.T) {
@@ -43,7 +64,7 @@ func Test_ParseJSON(t *testing.T) {
 		name string
 		args args
 	}{
-		{name: "1", args: args{body: []byte(testBody)}},
+		{name: "1", args: args{body: []byte(testBodyCars)}},
 	}
 
 	for _, tt := range tests {
@@ -56,7 +77,15 @@ func Test_ParseJSON(t *testing.T) {
 	}
 }
 
-const testBody = `{
+const (
+	testBodyCity = `{
+    "Москва": {
+        "is_success": true,
+        "city_id": 3611,
+        "street": null
+    }
+}`
+	testBodyCars = `{
   "total_count": 0,
   "hidden_count": 0,
   "accounts": {
@@ -300,3 +329,4 @@ const testBody = `{
     }
   }
   }`
+)

@@ -6,6 +6,8 @@ type City struct {
 	Street    string `json:"street"`
 }
 
+type Cities map[string]City
+
 type Response struct {
 	TotalCount  int                     `json:"total_count"`
 	HiddenCount int                     `json:"hidden_count"`
