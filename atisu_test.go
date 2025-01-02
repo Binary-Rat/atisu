@@ -55,6 +55,19 @@ func Test_GetCityID(t *testing.T) {
 	assert.Equal(t, 3611, (*cities)["Москва"].CityID)
 }
 
+func Test_GetCityIDHTTP(t *testing.T) {
+	cl := &Client{
+		isDemo: true,
+		client: &http.Client{},
+		token:  "-",
+	}
+	cities, err := cl.GetCityID([]string{"Москва"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(cities)
+}
+
 func Test_ParseJSON(t *testing.T) {
 
 	type args struct {

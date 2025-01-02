@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 
@@ -60,7 +61,7 @@ func (c *Client) GetCarsWithFilter(page int, itemsPerPage int, filter Filter) ([
 // It returns a pointer to a Cities struct (map), which contains the id of the city.
 func (c *Client) GetCityID(body []string) (*Cities, error) {
 	var cities *Cities
-	resp, err := c.doHTTP(context.TODO(), http.MethodGet, getCityID, body)
+	resp, err := c.doHTTP(context.TODO(), http.MethodPost, getCityID, body)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to get city id")
 	}
@@ -78,7 +79,7 @@ func endpoint(path string, params map[string]string) string {
 		Host:   host,
 		Path:   path,
 	}
-	if params == nil || len(params) > 0 {
+	if len(params) > 0 {
 		q := u.Query()
 		for k, v := range params {
 			q.Set(k, v)
@@ -91,15 +92,12 @@ func endpoint(path string, params map[string]string) string {
 
 // The function returns the response body and an error if something went wrong.
 // all api responses`s errors will be returned as error
-func (c *Client) doHTTP(ctx context.Context, method string, endpoint string, body interface{}) ([]byte, error) {
+func (c *Client) doHTTP(ctx context.Context, method string, path string, body interface{}) ([]byte, error) {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to marshal input body")
 	}
-	urlWithHost, err := url.JoinPath(host, endpoint)
-	if err != nil {
-		return nil, errors.WithMessage(err, "failed to join path")
-	}
+	urlWithHost := endpoint(path, nil)
 	req, err := http.NewRequestWithContext(ctx, method, urlWithHost, bytes.NewBuffer(b))
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to create new request")
@@ -107,14 +105,13 @@ func (c *Client) doHTTP(ctx context.Context, method string, endpoint string, bod
 
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.token))
-
 	resp, err := c.client.Do(req)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to send http request")
 	}
 
 	defer resp.Body.Close()
-
+	log.Println(resp.StatusCode)
 	if resp.StatusCode != http.StatusOK {
 		err := fmt.Sprintf("API Error: %s", resp.Header.Get(xErrorHeader))
 		return nil, errors.New(err)
