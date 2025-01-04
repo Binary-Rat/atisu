@@ -52,9 +52,8 @@ func (c *Client) GetCarsWithFilter(page int, itemsPerPage int, filter Filter) ([
 	if c.isDemo {
 		params["demo"] = "true"
 	}
-	enpoint := endpoint(searchByFilter, params)
 	body := requestCars{Page: page, ItemsPerPage: itemsPerPage, Filter: filter}
-	return c.doHTTP(context.TODO(), http.MethodGet, enpoint, body)
+	return c.doHTTP(context.TODO(), http.MethodGet, searchByFilter, body)
 }
 
 // GetCityID gets the id of a city by it's name or it`s part`.

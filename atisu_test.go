@@ -68,6 +68,19 @@ func Test_GetCityIDHTTP(t *testing.T) {
 	t.Log(cities)
 }
 
+func Test_GetCarsWithFilterHTTP(t *testing.T) {
+	cl := &Client{
+		isDemo: true,
+		client: &http.Client{},
+		token:  "-",
+	}
+	cities, err := cl.GetCarsWithFilter(1, 1, Filter{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(cities)
+}
+
 func Test_ParseJSON(t *testing.T) {
 
 	type args struct {
