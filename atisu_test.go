@@ -72,9 +72,19 @@ func Test_GetCarsWithFilterHTTP(t *testing.T) {
 	cl := &Client{
 		isDemo: true,
 		client: &http.Client{},
-		token:  "-",
+		token:  "token",
 	}
-	cities, err := cl.GetCarsWithFilter(1, 1, Filter{})
+	filter := Filter{}
+	filter.Dates.Date_option = "today"
+	filter.From.ID = 2
+	filter.From.Type = 0
+	filter.To.ID = 2
+	filter.To.Type = 0
+	filter.Weight.Min = 0.5
+	filter.Weight.Max = 0.5
+	filter.Volume.Min = 0.5
+	filter.Volume.Max = 0.5
+	cities, err := cl.GetCarsWithFilter(1, 10, filter)
 	if err != nil {
 		t.Fatal(err)
 	}

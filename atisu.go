@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"slices"
 
 	"github.com/pkg/errors"
 )
@@ -19,6 +20,10 @@ const (
 	searchByFilter = "/v1.0/trucks/search/by-filter"
 	//errors
 	xErrorHeader = "X-Error"
+)
+
+var (
+	allowedItemsPerPage = []int{10, 20, 30, 40, 50, 100}
 )
 
 //go:generate mockgen -destination=./mocks/mock_atisu.go -package=mocks github.com/Binary-Rat/atisu HTTPClient
@@ -48,19 +53,22 @@ func NewClient(token string, isDemo bool) (*Client, error) {
 }
 
 func (c *Client) GetCarsWithFilter(page int, itemsPerPage int, filter Filter) ([]byte, error) {
+	if !slices.Contains(allowedItemsPerPage, itemsPerPage) {
+		return nil, errors.Errorf("items per page must be one of %v", allowedItemsPerPage)
+	}
 	params := map[string]string{}
 	if c.isDemo {
 		params["demo"] = "true"
 	}
 	body := requestCars{Page: page, ItemsPerPage: itemsPerPage, Filter: filter}
-	return c.doHTTP(context.TODO(), http.MethodGet, searchByFilter, body)
+	return c.doHTTP(context.TODO(), http.MethodGet, searchByFilter, params, body)
 }
 
 // GetCityID gets the id of a city by it's name or it`s part`.
 // It returns a pointer to a Cities struct (map), which contains the id of the city.
 func (c *Client) GetCityID(body []string) (*Cities, error) {
 	var cities *Cities
-	resp, err := c.doHTTP(context.TODO(), http.MethodPost, getCityID, body)
+	resp, err := c.doHTTP(context.TODO(), http.MethodPost, getCityID, nil, body)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to get city id")
 	}
@@ -91,12 +99,12 @@ func endpoint(path string, params map[string]string) string {
 
 // The function returns the response body and an error if something went wrong.
 // all api responses`s errors will be returned as error
-func (c *Client) doHTTP(ctx context.Context, method string, path string, body interface{}) ([]byte, error) {
+func (c *Client) doHTTP(ctx context.Context, method string, path string, params map[string]string, body interface{}) ([]byte, error) {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to marshal input body")
 	}
-	urlWithHost := endpoint(path, nil)
+	urlWithHost := endpoint(path, params)
 	req, err := http.NewRequestWithContext(ctx, method, urlWithHost, bytes.NewBuffer(b))
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to create new request")
