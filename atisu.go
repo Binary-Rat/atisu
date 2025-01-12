@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"slices"
@@ -18,8 +17,6 @@ const (
 	host = "api.ati.su"
 	//enpoints
 	searchByFilter = "/v1.0/trucks/search/by-filter"
-	//errors
-	xErrorHeader = "X-Error"
 )
 
 var (
@@ -118,15 +115,15 @@ func (c *Client) doHTTP(ctx context.Context, method string, path string, params 
 	}
 
 	defer resp.Body.Close()
-	log.Println(resp.StatusCode)
-	if resp.StatusCode != http.StatusOK {
-		err := fmt.Sprintf("API Error: %s", resp.Header.Get(xErrorHeader))
-		return nil, errors.New(err)
-	}
 
 	respB, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, errors.WithMessage(err, "failed to read request body")
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		err := fmt.Sprintf("API Error: %s", respB)
+		return nil, errors.New(err)
 	}
 
 	return respB, nil

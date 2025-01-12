@@ -84,11 +84,13 @@ func Test_GetCarsWithFilterHTTP(t *testing.T) {
 	filter.Weight.Max = 0.5
 	filter.Volume.Min = 0.5
 	filter.Volume.Max = 0.5
-	cities, err := cl.GetCarsWithFilter(1, 10, filter)
+	cars, err := cl.GetCarsWithFilter(1, 10, filter)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Log(cities)
+	var data any
+	json.Unmarshal(cars, &data)
+	t.Log(data)
 }
 
 func Test_ParseJSON(t *testing.T) {
