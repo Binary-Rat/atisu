@@ -14,8 +14,10 @@ import (
 )
 
 const (
-	host = "api.ati.su"
+	host     = "api.ati.su"
+	trueDemo = "demo=true"
 	//enpoints
+	getCityID      = "/v1.0/dictionaries/locations/parse"
 	searchByFilter = "/v1.0/trucks/search/by-filter"
 )
 
