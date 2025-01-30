@@ -74,7 +74,6 @@ func (c *Client) GetCityID(body []string) (*Cities, error) {
 		return nil, errors.WithMessage(err, "failed to get city id")
 	}
 	json.Unmarshal(resp, &cities)
-
 	return cities, nil
 }
 
