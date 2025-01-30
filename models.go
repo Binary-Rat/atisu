@@ -235,29 +235,32 @@ type ContactInfo struct {
 	Email       string `json:"email"`
 }
 
+type CityFilter struct {
+	ID   int `json:"id"`
+	Type int `json:"type"`
+}
+
+type Weight struct {
+	Min float64 `json:"min"`
+	Max float64 `json:"max"`
+}
+
+type Volume struct {
+	Min float64 `json:"min"`
+	Max float64 `json:"max"`
+}
+
 type Filter struct {
 	Dates struct {
 		Date_option string `json:"date_option"`
 	} `json:"dates"`
-	From struct {
-		ID   int `json:"id"`
-		Type int `json:"type"`
-	} `json:"from"`
-	To struct {
-		ID   int `json:"id"`
-		Type int `json:"type"`
-	} `json:"to"`
-	Weight struct {
-		Min float64
-		Max float64
-	} `json:"weight"`
-	Volume struct {
-		Min float64
-		Max float64
-	} `json:"volume"`
-	TruckType   int `json:"truck_type"`
-	LoadingType int `json:"loading_type"`
-	SortingType int `json:"sorting_type"`
+	From        CityFilter `json:"from"`
+	To          CityFilter `json:"to"`
+	Weight      Weight     `json:"weight"`
+	Volume      Volume     `json:"volume"`
+	TruckType   int        `json:"truck_type"`
+	LoadingType int        `json:"loading_type"`
+	SortingType int        `json:"sorting_type"`
 }
 
 type requestCars struct {

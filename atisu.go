@@ -55,10 +55,12 @@ func (c *Client) GetCarsWithFilter(page int, itemsPerPage int, filter Filter) ([
 	if !slices.Contains(allowedItemsPerPage, itemsPerPage) {
 		return nil, errors.Errorf("items per page must be one of %v", allowedItemsPerPage)
 	}
+
 	params := map[string]string{}
 	if c.isDemo {
 		params["demo"] = "true"
 	}
+
 	body := requestCars{Page: page, ItemsPerPage: itemsPerPage, Filter: filter}
 	return c.doHTTP(context.TODO(), http.MethodGet, searchByFilter, params, body)
 }
