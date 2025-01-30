@@ -235,6 +235,10 @@ type ContactInfo struct {
 	Email       string `json:"email"`
 }
 
+type DateOption struct {
+	DateOption string `json:"date_option"`
+}
+
 type CityFilter struct {
 	ID   int `json:"id"`
 	Type int `json:"type"`
@@ -251,9 +255,7 @@ type Volume struct {
 }
 
 type Filter struct {
-	Dates struct {
-		Date_option string `json:"date_option"`
-	} `json:"dates"`
+	Dates       DateOption `json:"dates"`
 	From        CityFilter `json:"from"`
 	To          CityFilter `json:"to"`
 	Weight      Weight     `json:"weight"`

@@ -75,7 +75,7 @@ func Test_GetCarsWithFilterHTTP(t *testing.T) {
 		token:  "token",
 	}
 	filter := Filter{}
-	filter.Dates.Date_option = "today"
+	filter.Dates.DateOption = "today"
 	filter.From.ID = 2
 	filter.From.Type = 0
 	filter.To.ID = 2
